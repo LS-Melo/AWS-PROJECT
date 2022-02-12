@@ -1,0 +1,54 @@
+apt install vsftpd
+
+passwd ubuntu
+	$PASSWORD
+
+systemctl start vsftpd
+ss -tulnp		# Check if is Listening Port: 21
+
+nano /etc/vsftpd.conf
+
+💡	write_enable=YES	# Uncomment
+💡	# Insert your Certificates Directories
+💡	ssl_enable=YES
+
+# At the end of the page
+# Add:
+
+💡	pasv_enable=YES
+💡	pasv_min_port=10000
+💡	pasv_max_port=10100
+
+# FTP METHODS:
+# Add this at the end for "Implicit Mode"
+
+💡	allow_anon_ssl=NO
+💡	force_local_data_ssl=YES
+💡	force_local_logins_ssl=YES
+💡	ssl_tlsv1=YES
+💡	ssl_sslv2=NO
+💡	ssl_sslv3=NO
+💡	require_ssl_reuse=NO
+💡	ssl_ciphers=HIGH
+
+💡	implicit_ssl=YES
+💡	listen_port=990
+
+# OR...
+# Add this at the end for "Explicit Mode"
+
+💡	allow_anon_ssl=NO
+💡	force_local_data_ssl=YES
+💡	force_local_logins_ssl=YES
+💡	ssl_tlsv1=YES
+💡	ssl_sslv2=NO
+💡	ssl_sslv3=NO
+💡	require_ssl_reuse=NO
+💡	ssl_ciphers=HIGH
+
+# Save file
+
+systemctl restart vsftpd
+systemctl status vsftpd
+
+# Open your FTP client, choose your FTP method and try.
