@@ -1,0 +1,24 @@
+apt install bind9
+
+cd /etc/bind/
+nano named.conf.options  ###  Descomentar forwarders 0.0.0.0
+
+cp db.local db.inova.pt  ### Forward Zone
+cp db.127 db.172	  ### Reverse Zone
+
+mv db.inova.pt /var/lib/bind/   ### Mover para um diretório à escolha
+mv db.172 /var/lib/bind/	 ### Mover para um diretório à escolha
+
+cd /var/lib/bind/
+nano db.inova.pt 		### Configurar o forward zone (CTRL+\ substituir 'localhost' pelo dominio do servidor)
+nano db.172			### Configurar o Reverse Zone
+
+cd /etc/bind/
+
+nano named.conf.default-zones ### Copiar o forward zone e o reverse zone que está por defeito
+nano named.conf.local 	       ### Colar e editar os diretórios
+
+systemctl restart bind9
+systemctl status bind9
+
+dig SITE @IP_SRV_DNS
