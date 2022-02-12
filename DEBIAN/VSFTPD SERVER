@@ -4,11 +4,11 @@ passwd ubuntu
 	$PASSWORD
 
 systemctl start vsftpd
-ss -tulnp		# Check if is Listening Port: 21
+ss -tulnp						# Check if is Listening Port: 21
 
 nano /etc/vsftpd.conf
 
-💡	write_enable=YES	# Uncomment
+💡	write_enable=YES				# Uncomment
 💡	# Insert your Certificates Directories
 💡	ssl_enable=YES
 
