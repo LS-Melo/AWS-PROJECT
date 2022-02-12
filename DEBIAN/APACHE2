@@ -6,19 +6,22 @@ a2ensite default-ssl.conf
 systemctl restart apache2
 
 nano /etc/apache2/sites-available/default-ssl.conf
-	DocumentRoot /var/www/htmls
-	#Insert your certificates directories
+
+💡	DocumentRoot /var/www/htmls
+💡	#Insert your certificates directories
 
 cd /var/www/
 cp -r html/ htmls
 
 cd html/
-	> index.html
-	nano index.html 		# WRITE SOMETHING FOR YOUR PORT: 80 PAGE
+
+💡	> index.html
+💡	nano index.html 		# WRITE SOMETHING FOR YOUR PORT: 80 PAGE
 
 cd../htmls
-	> index.html
-	nano index.html 		# WRITE SOMETHING FOR YOUR PORT: 443 PAGE
+
+💡	> index.html
+💡	nano index.html 		# WRITE SOMETHING FOR YOUR PORT: 443 PAGE
 	
 systemctl restart apache2
 
