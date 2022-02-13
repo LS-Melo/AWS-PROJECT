@@ -14,7 +14,11 @@ cd /var/lib/bind/
 nano db.inova.pt 
     
 💡    CTRL + \ -> Change 'localhost' to 'DOMAIN'
-    
+titulo:
+     asdasdsad
+     asdasdsad
+     asdasdasd
+
 💡    $TTL    604800
       @       IN      SOA     inova.pt. root.inova.pt. (
                                      2         ; Serial
