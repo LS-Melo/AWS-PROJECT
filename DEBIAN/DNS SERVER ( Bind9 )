@@ -1,0 +1,50 @@
+apt install bind9
+
+cd /etc/bind/
+
+nano named.conf.options         
+💡   # Uncomment forwarders 0.0.0.0
+    
+cp db.local db.inova.pt    # Forward Zone
+
+mv db.inova.pt /var/lib/bind/   # It is not necessary to change the directory, only if you prefer
+
+cd /var/lib/bind/
+
+nano db.inova.pt 
+    
+💡    CTRL + \ -> Change 'localhost' to 'DOMAIN'
+    
+💡    $TTL    604800
+      @       IN      SOA     inova.pt. root.inova.pt. (
+                                     2         ; Serial
+                                     604800         ; Refresh
+                                     86400         ; Retry
+                                     2419200         ; Expire
+                                     604800 )       ; Negative Cache TTL
+
+      @               IN      NS      inova.pt.                                     # This is an example of my own DNS configuration for this project (DEBIAN SIDE)
+      @               IN      A       172.31.96.10
+      control         IN      A       172.31.96.10
+      www             IN      A       172.31.95.11
+      central         IN      A       172.31.96.11
+      wazuh           IN      A       172.31.96.12
+      sales           IN      A       172.31.96.13
+      marketing       IN      A       172.31.96.14
+      tele            IN      A       172.31.96.10
+#Save file
+
+cd /etc/bind/
+
+nano named.conf.default-zones 
+
+💡  # Copy Default Zone block
+
+nano named.conf.local 	       
+
+💡  # Paste and change the directories for your Forward/Reverse configuration directory
+
+systemctl restart bind9
+systemctl status bind9
+
+dig 'SITE' @<DNS_SERVER_IP>     # This will test your DNS Server by asking him a reply (if he recognizes) about the 'SITE' your looking for
