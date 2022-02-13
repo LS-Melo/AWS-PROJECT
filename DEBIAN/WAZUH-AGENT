@@ -3,7 +3,7 @@
 # user = admin
 # Password = admin
 
-# WAZUH -> AGENTS -> Deploy New Agent 
+# BROWSER -> WAZUH -> AGENTS -> Deploy New Agent 
 
 1. Choose the Operating system
 
@@ -17,7 +17,7 @@
 
 💡   <Copy Command>
 💡   Open your Clients (Agents) machines    # You can use this command to install and enroll the Wazuh agent in one or more hosts.
-💡  <Paste Command>
+💡   <Paste Command>
 
 6. Start the agent:
 
@@ -25,6 +25,6 @@
 💡   Open your Clients (Agents) machines again
 💡   <Paste Command>
    
-# WAZUH -> AGENTS
+# BROWSER -> WAZUH -> AGENTS
 # Check if your agents that you attached are all "active".
 # Now you can open a 'Summary Panel' for each one.
