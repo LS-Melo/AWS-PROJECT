@@ -1,0 +1,54 @@
+********************** NIS & NFS SERVER *****************************
+
+nano /etc/hosts	
+💡  <SERVER_PRIV_IP> central.inova.pt central inova.pt
+
+apt update && apt -y upgrade && apt install nfs-kernel-server
+
+nano /etc/exports
+
+#Add to the end:
+💡	/mnt/raid5_homes *(rw,sync,no_subtree_check,no_root_squash)                 # Set the directory you will add your users
+
+mkdir /mnt/raid5_homes
+exportfs -a
+systemctl enable --now nfs-kernel-server
+
+adduser sales --home /mnt/raid5_homes/sales   
+💡    # Set user Password
+💡    # Set user details
+						
+echo xfce4-session > /mnt/raid5_homes/sales/.xsession
+chown sales:sales /mnt/raid5_homes/sales/.xsession
+
+apt -y install nis		
+	# Write your server domain
+	
+nano /etc/default/nis
+
+💡	"NISSERVER=master"
+💡	"NISCLIENT=false"			  # We are not a client
+
+nano /etc/ypserv.securenets
+	
+💡  Comment out # 0.0.0.0 0.0.0.0
+💡	255.255.0.0     172.31.0.0 	  # IP range you allow to access
+
+nano /var/yp/Makefile
+
+💡	MERGE_PASSWD=true
+💡	MERGE_GROUP=true
+
+/usr/lib/yp/ypinit -m
+
+💡	Ctrl + D
+💡	y
+
+nano /etc/yp.conf
+
+💡	ypserver SERVER_PRIVATE_IP
+
+systemctl restart nis
+
+cd /var/yp		# Every time you add a new user, do ' make '
+💡  make
