@@ -1,0 +1,13 @@
+# GUI for Ubuntu
+
+sudo apt install -y xfce4 xfce4-goodies
+
+sudo apt install -y xrdp chromium-browser filezilla           # Install any package you want, 'xrdp' is necessary
+
+sudo adduser xrdp ssl-cert                                    
+
+exit                                                          # Exit root
+
+echo xfce4-session > ~/.xsession                              # Create .xsession
+
+# Open your machine remotly
