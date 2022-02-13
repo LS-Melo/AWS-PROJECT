@@ -1,0 +1,77 @@
+************	NAT - UBUNTU - AWS  ************
+
+# Need: 1 VPC
+# Atleast one more subnet (In this case i'll use 2 new subnets)
+# Create a New Network Interface (with Subnet-2)
+# Create NAT-SERVER -> Choose VPC -> set default subnet -> add a new network interface device (subnet-1)
+# Attach the new Network Interface (subnet-2) to the NAT-SERVER
+# Make sure your NAT-SERVER has " Change source/destination check " -> STOP
+
+# Now we will configure the Network Interface (subnet-2)
+# OPEN NAT-SERVER
+
+💡  ip a
+        ...
+        4: eth2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9001 qdisc fq_codel state UP group default qlen 1000
+            link/ether 02:39:05:95:fc:5f brd ff:ff:ff:ff:ff:ff
+        ...
+        # Copy Mac Address
+        
+nano /etc/netplan/50-cloud-init.yam
+# Add a new block (eth2):
+
+💡  eth2:
+        dhcp4: true
+        dhcp4-overrides:
+            route-metric: 300
+        dhcp6: false
+        match:
+            macaddress: 02:39:05:95:fc:5f       # Paste Mac Address
+        set-name: eth2
+version: 2
+#Save File
+
+💡  netplan try
+💡  netplan apply
+
+apt update && apt upgrade
+apt install netfilter-persistent iptables-persistent
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+iptables -t nat -L -nv
+netfilter-persistent save
+
+nano /etc/sysctl.conf  
+
+💡  Uncomment "net.ipv4.ip_forward = 1"
+    #Save file
+
+sysctl -p    # Confirm if 'net.ipv4.ip_forward=1'
+
+#Now we will NAT
+#OPEN NAT-CLIENT
+
+nano /etc/netplan/50-cloud-init.yam
+
+💡  network:
+      ethernets:
+          eth0:
+              dhcp4: true
+              dhcp6: false
+              dhcp4-overrides:
+                  use-dns: false
+                  use-routes: false
+             nameservers:
+                  addresses: [ 8.8.8.8 ]     # If you have a DNS working, you can put your [DNS_SERVER_IP]
+              routes:
+                  - to: 0.0.0.0/0
+                    via: <NAT_SERVER_IP>     # Write NAT-SERVER-IP (The one who will make us reach the internet)
+                    on-link: true
+              match:
+                  macaddress: 02:64:ed:72:f5:27
+              set-name: eth0
+      version: 2
+      #Save File
+
+💡  netplan try
+💡  netplan apply
+💡  ping 1.1.1.1    # Check if you have internet connection.
