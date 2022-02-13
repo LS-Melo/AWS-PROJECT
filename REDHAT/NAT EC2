@@ -33,4 +33,6 @@ nano /etc/sysconfig/network-scripts/ifcfg-eth0
 💡  GATEWAY=<NAT_SERVER_IP>
 #Save File
 
+systemctl restart network
+
 💡  ping 1.1.1.1      # Test your internet connectivity
