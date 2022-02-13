@@ -10,10 +10,21 @@
 # OPEN NAT-SERVER
 
 yum update && yum upgrade
+yum install iptables-services
+systemctl enable --now iptables
 
-💡  iptables -P INPUT ACCEPT; iptables -P FORWARD ACCEPT; iptables -P OUTPUT ACCEPT
-💡  iptables -F INPUT; iptables -F FORWARD; iptables -F OUTPUT
-💡  service iptables save
+iptables -P INPUT ACCEPT; iptables -P FORWARD ACCEPT; iptables -P OUTPUT ACCEPT
+iptables -F INPUT; iptables -F FORWARD; iptables -F OUTPUT
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+iptables -t nat -L -nv
+service iptables save
+
+nano /etc/sysctl.conf
+#ADD
+💡  net.ipv4.ip_forward = 1
+
+sysctl -p /etc/sysctl.conf
+service network restart
 
 # OPEN NAT-CLIENT
 
