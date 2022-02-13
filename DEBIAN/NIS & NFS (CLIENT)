@@ -1,0 +1,41 @@
+**********************  NIS & NFS CLIENT  *****************************
+
+apt update && apt upgrade
+apt install nfs-common
+
+mkdir /mnt/raid5_homes		         # Create the same directory that was created at NIS Server
+mount -t nfs <NISSERVER_PRIVATE_IP>:/mnt/raid5_homes /mnt/raid5_homes    # Mount NFS at the same directory
+
+cat /etc/mtab		                   # Copy the last line (about 'mount')
+nano /etc/fstab	                   # Paste and add 'nofail,'
+
+apt -y install nis
+
+nano /etc/yp.conf
+	
+💡	ypserver <NISSERVER_PRIVATE_IP>
+💡	srvdomain srv.world <NISSERVER_PRIVATE_IP> srvdomain.srv.world          # Example: central inova.pt X:X:X:X central.inova.pt
+
+nano /etc/nsswitch.conf
+
+💡    passwd:         compat nis
+💡    group:          compat nis
+💡    shadow:         compat nis
+...
+💡    hosts:          files dns nis
+
+nano /etc/pam.d/common-session
+#ADD
+💡	session optional	pam_mkhomedir.so skel=/etc/skel umask=077
+
+systemctl restart nis
+
+login USER		# Login the user that was created at NIS-SERVER (we're testing NIS) 
+
+ls -l /mnt/raid5_homes/	    # Confirm client and server have connection by seeing created users automatically appear in this directory
+
+*****************	TESTING NFS	******************
+
+# OPEN 2 REMOTE CLIENTS (Different from each other)
+# Login 'USER'  ->  In both machines and same USER
+# Create a document/folder on one of the clients and check if the file was automatically created on the other client.
