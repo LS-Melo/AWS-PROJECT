@@ -1,0 +1,58 @@
+********************		DNS REDHAT	 *********************
+
+yum install bind bind-utils
+systemctl enable --now named
+systemctl status named
+
+nano /etc/named.conf
+
+💡	listen-on port 53 { any; };	  # Insert your IP's
+💡	allow-query     { any; };	    # In this case, i'll allow access from "any"
+
+💡	dnssec-enable no;
+💡  dnssec-validation no;
+
+💡	zone "enta.pt." IN {		        # Insert your domain
+	       type master;
+      	       file "db.enta.pt";	  # Choose a name for your 'Forward' conf
+	};
+	
+cd /var/named
+cp named.localhost db.enta.pt		    # Name choosen before 'Forward Zone Name'
+
+nano db.enta.pt
+
+💡	$TTL 1D
+💡	@       IN SOA   enta.pt. root.enta.pt. (			        # Change for your domain name
+                                        0       ; serial
+                                        1D      ; refresh
+                                        1H      ; retry
+                                        1W      ; expire
+                                        3H )    ; minimum
+💡	;
+💡	@               IN      NS      enta.pt.			        # Inser your domain name
+💡	@               IN      A       172.31.20.255			    # and
+💡	control         IN      A       172.31.20.255			    # the IPs from the machines
+💡	central         IN      A       172.31.98.11			    # you want to add
+💡	wazuh           IN      A       172.31.98.12			    # to your DNS configuration.
+💡	www             IN      A       172.31.97.11			    # In this case, i will use 6 machines
+💡	sales           IN      A       172.31.98.13
+💡	marketing       IN      A       172.31.98.14
+
+
+chown root:named db.enta.pt     # Set root:named permissions
+
+systemctl restart named
+systemctl status named
+
+nano /etc/sysconfig/network-scripts/ifcfg-eth0
+
+💡	DNS1=172.31.20.255		# DNS SERVER IP
+💡	DNS2=172.31.96.10		  # Im connected to an OPENVPN server. If a client needs an answer that "DNS SERVER" can't give a reply, client asks "DNS server from OpenVPN"	(!Not necessary for a simple dns server!)
+💡	DNS3=8.8.8.8			    # In last case, ask internet for an answer.
+
+systemctl restart network
+
+# Now try to ask your DNS server
+
+dig 'SITE' @IP_DNS_SERVER
