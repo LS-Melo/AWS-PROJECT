@@ -1,0 +1,25 @@
+*********   NAT - EC2	- AWS   *********
+
+# Need: 1 VPC
+# Atleast one more subnet (In this case i'll use 2 new subnets)
+# Create a New Network Interface (with Subnet-2)
+# Create NAT-SERVER -> Choose VPC -> set default subnet -> add a new network interface device (subnet-1)
+# Attach the new Network Interface (subnet-2) to the NAT-SERVER
+# Make sure your NAT-SERVER has " Change source/destination check " -> STOP
+
+# OPEN NAT-SERVER
+
+yum update && yum upgrade
+
+💡  iptables -P INPUT ACCEPT; iptables -P FORWARD ACCEPT; iptables -P OUTPUT ACCEPT
+💡  iptables -F INPUT; iptables -F FORWARD; iptables -F OUTPUT
+💡  service iptables save
+
+# OPEN NAT-CLIENT
+
+nano /etc/sysconfig/network-scripts/ifcfg-eth0
+#ADD
+💡  GATEWAY=<NAT_SERVER_IP>
+#Save File
+
+💡  ping 1.1.1.1      # Test your internet connectivity
