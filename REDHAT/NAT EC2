@@ -1,4 +1,4 @@
-*********   NAT - EC2	- AWS   *********
+*********   NAT - EC2 - AWS   *********
 
 # Need: 1 VPC
 # Atleast one more subnet (In this case i'll use 2 new subnets)
