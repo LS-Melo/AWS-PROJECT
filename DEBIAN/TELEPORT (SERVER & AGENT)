@@ -12,7 +12,7 @@
 # Download Teleport's PGP public key
 
 💡	sudo curl https://deb.releases.teleport.dev/teleport-pubkey.asc \
-💡  -o /usr/share/keyrings/teleport-archive-keyring.asc
+💡  	-o /usr/share/keyrings/teleport-archive-keyring.asc
 
 # Add the Teleport APT repository
 
@@ -28,7 +28,7 @@
 💡	dig tele.domain	@DNS_SERVER_IP				# 'tele' is the "A Record" from DNS
 
 #	Now you can start the server.
-💡	systemctl start openvpn
+💡	systemctl start teleport
 
 # Next step is to add our own Certificates (CA) into the Teleport
 # Your must have a 'ca.crt', 'tele.inova.pt.crt' and 'tele.inova.pt.key'.	(Those were the name i choosed for my certificates)
