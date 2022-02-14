@@ -69,7 +69,7 @@
 #	Now you have your Teleport Server ready! :)
 
 
-**********	 Teleport Agent	**********
+********** 	 Teleport Agent 	**********
 
 
 # Now we will add an SSH Client (Agent) into our Teleport Server so we can access him via browser.
