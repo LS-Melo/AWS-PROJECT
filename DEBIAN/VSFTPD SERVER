@@ -9,7 +9,7 @@ ss -tulnp						# Check if is Listening Port: 21
 nano /etc/vsftpd.conf
 
 💡	write_enable=YES				# Uncomment
-💡	# Insert your Certificates Directories
+💡	# Insert your Certificates Directories (Make sure they have the same permissions as "snakeoil")
 💡	ssl_enable=YES
 
 # At the end of the page
