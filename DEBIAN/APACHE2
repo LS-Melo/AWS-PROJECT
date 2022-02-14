@@ -1,16 +1,14 @@
-fwrfwrf
+apt update && apt upgrade
 	
-	apt update && apt upgrade
-	
-	apt install apache2
-	a2enmod ssl
-	a2ensite default-ssl.conf
-	systemctl restart apache2
+apt install apache2
+a2enmod ssl
+a2ensite default-ssl.conf
+systemctl restart apache2
 
-	nano /etc/apache2/sites-available/default-ssl.conf
+nano /etc/apache2/sites-available/default-ssl.conf
 
-	💡	DocumentRoot /var/www/htmls
-	💡	#Insert your certificates directories
+💡	DocumentRoot /var/www/htmls
+💡	#Insert your certificates directories
 
 
 cd /var/www/
