@@ -1,0 +1,92 @@
+**********	 Teleport Server 	**********
+
+#Prerequisites
+
+#    A Linux machine with a port 443 open;
+#    A two-factor authenticator app such as Authy, Google Authenticator, or Microsoft Authenticator;
+#    An SSH client (Will be our Agent);
+#    Access to a DNS service.
+
+# Install Teleport on the server
+
+# Download Teleport's PGP public key
+
+💡	sudo curl https://deb.releases.teleport.dev/teleport-pubkey.asc \
+💡  -o /usr/share/keyrings/teleport-archive-keyring.asc
+
+# Add the Teleport APT repository
+
+💡	cat<<EOF>/etc/apt/sources.list.d/teleport.list
+💡	deb [signed-by=/usr/share/keyrings/teleport-archive-keyring.asc] https://deb.releases.teleport.dev/ stable main
+💡	EOF
+	
+💡	sudo apt-get update
+💡	sudo apt-get install teleport
+
+# Before we continue we need to make sure that our DNS Server is working 
+
+💡	dig tele.domain	@DNS_SERVER_IP				# 'tele' is the "A Record" from DNS
+
+#	Now you can start the server.
+💡	systemctl start openvpn
+
+# Next step is to add our own Certificates (CA) into the Teleport
+# Your must have a 'ca.crt', 'tele.inova.pt.crt' and 'tele.inova.pt.key'.	(Those were the name i choosed for my certificates)
+#	After you created them, we need to send to the teleport directory:
+
+#	Send 'tele.inova.pt.key' key into teleport 'privkey.pem'
+💡	cat /etc/easy-rsa/pki/private/tele.inova.pt.key >> /var/lib/teleport/privkey.pem
+
+#	Send 'tele.inova.pt.crt' key into teleport 'fullchain.pem' 
+💡	cat /etc/easy-rsa/pki/issued/tele.inova.pt.crt >> /var/lib/teleport/fullchain.pem
+
+#	In this line, before continue, check if is wrote okay and if the directory from certificates are correct.
+💡	teleport configure -o file     --cluster-name=tele.inova.pt     --public-addr=tele.inova.pt:443     --cert-file=/var/lib/teleport/fullchain.pem     --key-		file=/var/lib/teleport/privkey.pem
+
+💡	apt install ssl-cert
+💡	cd /usr/local/share/ca-certificates/
+
+#	Send 'ca.crt' key into 'ca.crt' default of teleport.
+💡	cat /etc/easy-rsa/pki/ca.crt >> ca.crt
+#	Reload Certificates
+💡	update-ca-certificates
+
+#	Create a Teleport user and set up two-factor authentication
+💡	tctl users add teleport-admin --roles=editor,access --logins=root,ubuntu,ec2-user
+
+	# This will give you a link of an invite to join Teleport Menu
+	# Example: " https://<proxyhost>:3080/web/invite/69d2d7a97xxxxxxxxxxxxx "
+	# Swap '<proxyhost>' to your teleport hostname, 'tele.inova.pt:443' (In my case)
+	# Copy it
+	
+# Open your Client Browser
+
+💡	Paste it and search
+💡	Create your admin credentials
+💡	Open your two-factor authenticator and insert 'Token'
+#	Create account
+
+#	Now you have your Teleport Server ready! :)
+
+
+**********	 Teleport Agent	**********
+
+
+# Now we will add an SSH Client (Agent) into our Teleport Server so we can access him via browser.
+
+# Click "ADD Server"
+# Copy 'Step 3 - Generate a join token " command
+# Go to your Teleport Server
+
+💡	Paste it (Step 3)
+
+#	This will generate a block of commands
+💡	Copy it (If you prefer, you can copy 1 by 1)
+
+#	Now open your teleport client
+#	REMINDER: YOU MUST HAVE TELEPORT INSTALLED HERE! (Line 14 <...> 26)
+
+💡	Paste it	(One by one or all at the same time, your choice)
+
+# Return to your Browser (where you had Teleport Menu opened)
+# Check if it added a new SSH session :)
