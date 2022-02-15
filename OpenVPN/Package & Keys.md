@@ -38,5 +38,7 @@ cd /etc/openvpn/
     nano /etc/openvpn/dh2048.pem
     
 #Now you can create your OpenVPN configuration files
+
 #Must have your certificates (CA) and a 'ca.crt' file signed from your server
+
 #Everything inside /etc/openvpn/
