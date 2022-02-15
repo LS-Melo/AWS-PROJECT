@@ -1,0 +1,46 @@
+sudo su -
+
+yum install -y httpd
+yum install -y mod_ssl
+
+cd /var/www/
+💡  cp -r html/ htmls
+
+#We're editing insecure (Port: 80)
+nano html/index.html
+
+💡  Write your insecure page
+
+#We're editing secure (HTTPS Port: 443) 
+nano htmls/index.html
+
+💡  Write your secure page
+
+nano /etc/httpd/conf.d/ssl.conf
+
+# Uncomment and edit for
+💡  DocumentRoot "/var/www/htmls
+
+#Edit line 75:
+💡  SSLProtocol -All +TLSv1 +TLSv1.1 +TLSv1.2
+
+#Edit line 100: Change for your own certificate
+💡  SSLCertificateFile /etc/pki/tls/certs/www.enta.pt.crt
+
+#Edit line 107: Change for your own certificate
+💡  SSLCertificateFile /etc/pki/tls/private/www.enta.pt.key
+
+#Edit line 122: Change for your own CA
+💡  SSLCertificateFile /etc/pki/tls/certs/ca.crt
+
+systemctl enable --now httpd
+systemctl status httpd
+
+# Open your browser or your client browser (if you have your DNS Server working and iptables rules defined)
+
+# You can search by "www.server.world" and "https://www.server.world/"
+# Otherwhise...
+# Search by your Public IP
+
+# Now you have your httpd working :)
+# NOTE: To try secure connection, you must have your "ca.crt" uploaded at your "browser certificates > Authorities
