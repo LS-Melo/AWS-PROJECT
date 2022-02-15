@@ -18,9 +18,37 @@ INOVA
     
 💡  Send them to SSL directory:
 
-    cp /etc/easy-rsa/pki/issued/* /etc/ssl/certs/
-    cp /etc/easy-rsa/pki/private/* /etc/ssl/private/
+         cp /etc/easy-rsa/pki/issued/* /etc/ssl/certs/
+         cp /etc/easy-rsa/pki/private/* /etc/ssl/private/
+    
+As we already created the certificates that we need for INOVA
 
+💡  We can already put them in the right directory:
+
+    cat /etc/easy-rsa/pki/issued/vpn.inovasrv.pt.crt >> /etc/openvpn/
+    cat /etc/easy-rsa/pki/private/vpn.inovacli.pt.key >> /etc/openvpn/
+    cat /etc/easy-rsa/pki/private/tele.inova.pt.key >> /var/lib/teleport/privkey.pem
+    cat /etc/easy-rsa/pki/issued/tele.inova.pt.crt >> /var/lib/teleport/fullchain.pem
+# Apache2 Certificates
+
+INOVA (control.inova.pt)
+
+     cat /etc/easy-rsa/pki/issued/www.inova.pt.crt
+     #Copy it
+     
+INOVA (www.inova.pt)     
+
+💡  nano /etc/ssl/certs/www.inova.pt.crt
+         
+     #Paste Here
+INOVA (control.inova.pt)
+
+    cat /etc/easy-rsa/pki/private/www.inova.pt.key
+    #Copy it
+💡  nano /etc/ssl/private/www.inova.pt.key
+         
+     #Paste Here
+    
 # Certificates for ENTA
 
 ENTA
@@ -132,4 +160,24 @@ Remote Client
 
     nano /etc/openvpn/vpn.remote2.pt.crt
     #Paste Here
+    
+# HTTPD Certificates
+
+INOVA
+
+     cat /etc/easy-rsa/pki/issued/www.enta.pt.crt
+     #Copy it
+     
+ENTA (www.enta.pt)     
+
+💡  nano /etc/pki/tls/certs/www.inova.pt.crt
+         
+     #Paste Here
+INOVA
+
+    cat /etc/easy-rsa/pki/private/www.enta.pt.key
+    #Copy it
+💡  nano /etc/pki/tls/private/www.inova.pt.key
+         
+     #Paste Here
 
