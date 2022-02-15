@@ -1,0 +1,31 @@
+# Open your client browser
+# URL = <SERVER_PUBLIC_IP:444>          # Make sure you have an FW rule to redirect Port:444 to your Wazuh-Server instance
+# user = admin
+# Password = admin
+
+# BROWSER -> Wazuh Interface -> WAZUH -> AGENTS -> Deploy New Agent 
+
+1. Choose the Operating system of your Client
+
+2. Choose the architecture
+
+3. Wazuh server address: <WAZUH_SERVER_IP>
+
+4. Assign the agent to a group: <default>
+
+5. Install and enroll the agent:
+
+💡   <Copy Command>
+# Open your Clients(Agents) machines
+# You can use this command to install and enroll the Wazuh agent in one or more hosts.
+💡   <Paste Command>
+
+6. Start the agent:
+
+💡   <Copy Command>
+# Open your Clients(Agents) machines again
+💡   <Paste Command>
+   
+# BROWSER -> WAZUH -> AGENTS
+# Check if your agents that you attached are all "active".
+# Now you can open a 'Summary Panel' for each one.
