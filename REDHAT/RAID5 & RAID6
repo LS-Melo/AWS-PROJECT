@@ -1,0 +1,199 @@
+************************	 RAID5 & RAID6		***************************
+
+--------------------------------
+
+#		AWS / RAID5
+
+# Create 3 new disks
+# Attach them all to the machine you want to do an RAID5
+
+# In this case we will use this method:
+# RAID5 -> LUKS -> LVM
+
+----------------------------------
+
+#Create your partitions	
+
+💡  gdisk /dev/xvdf						
+  	o -> y
+	  w -> y
+💡  gdisk /dev/xvdf
+	  n -> ENTER -> ENTER -> ENTER -> fd00
+	  w -> y
+
+💡  gdisk /dev/xvdg
+	  o -> y
+	  w -> y	
+💡  gdisk /dev/xvdg
+	  n -> ENTER -> ENTER -> ENTER -> fd00
+	  w -> y
+
+💡  gdisk /dev/xvdh
+	  o -> y
+	  w -> y
+💡  gdisk /dev/xvdh
+	  n -> ENTER -> ENTER -> ENTER -> fd00
+	  w -> y
+
+lsblk 							# Check if your partitions are OK
+
+__________ \/ __________
+
+#Create a Raid5 with 3 devices
+
+💡  mdadm --create /dev/md0 --level 5 --raid-devices 3 /dev/xvdf1 /dev/xvdg1 /dev/xvdh1
+
+mdadm --detail /dev/md0					#Wait until reach '100% completed'
+
+# Choose a password for your /dev/md0
+💡  cryptsetup luksFormat --hash=sha512 --key-size=512 --cipher=aes-xts-plain64 --verify-passphrase /dev/md0
+	      YES -> Passw0rd
+💡  cryptsetup luksOpen /dev/md0 md0_crypt
+	      Passw0rd
+	
+cryptsetup luksAddKey /dev/md0				# Add a new key (if you want/need)
+	Passw0rd2					                  # In this case we will use only one key
+
+
+cryptsetup luksDump -v /dev/md0
+
+__________ /\ __________
+
+💡  pvcreate /dev/mapper/md0_crypt				  # Creates your Physical Volume
+💡  vgcreate vg0 /dev/mapper/md0_crypt			# Creates your Volume Group
+
+💡  lvcreate -n vg0lv0 -l +50%FREE vg0			# Set your LVM as you want
+💡  lvcreate -n vg0lv1 -l +100%FREE vg0
+
+lvdisplay
+
+💡  mkfs.xfs /dev/vg0/vg0lv0
+💡  mkfs.ext4 /dev/vg0/vg0lv1
+
+cd /mnt/						                    # Set your 'mount' directory
+mkdir userinfo
+
+💡  mount /dev/vg0/vg0lv0 /mnt/raid5_homes/
+💡  mount /dev/vg0/vg0lv1 /mnt/userinfo
+
+df -hT
+
+cat /etc/mtab						                # Copy the last two lines
+	
+nano /etc/fstab						              # Paste and add "nofail," 
+
+reboot 
+
+# After the machine reboots:
+💡 cryptsetup luksOpen /dev/md0 md0_crypt
+	   superPassw0rd
+
+mount -a
+
+	
+-----------------------------------
+
+#		AWS / RAID6
+
+# You will need 4 new disks
+# Attach them all to the machine you want to do an RAID6
+
+# In this case we will use:
+# RAID6 -> LVM -> LUKS
+
+-----------------------------------
+
+# Create your partitions:
+
+💡  gdisk /dev/xvdf
+	  o -> y
+	  w -> y
+💡  gdisk /dev/xvdf
+	  n -> ENTER -> ENTER -> ENTER -> fd00
+	  w -> y
+
+💡  gdisk /dev/xvdg
+	  o -> y
+	  w -> y
+💡  gdisk /dev/xvdg	
+	  n -> ENTER -> ENTER -> ENTER -> fd00
+	  w -> y
+
+💡  gdisk /dev/xvdh
+  	o -> y
+  	w -> y
+💡  gdisk /dev/xvdh
+	  n -> ENTER -> ENTER -> ENTER -> fd00
+	  w -> y
+
+💡  gdisk /dev/xvdi
+	  o -> y
+	  w -> y
+💡  gdisk /dev/xvdi	
+	  n -> ENTER -> ENTER -> ENTER -> fd00
+	  w -> y
+
+# Check if your partitions are all OK
+
+lsblk 
+
+__________ \/ __________
+
+# Create an RAID6 with 4 devices 
+
+💡 mdadm --create /dev/md1 --level 6 --raid-devices 4 /dev/xvdf1 /dev/xvdg1 /dev/xvdh1 /dev/xvdi1
+
+# Wait until reach 100% completed
+mdadm --detail /dev/md1
+
+💡  pvcreate /dev/md1					    # Creates an Physical Volume
+💡  vgcreate vg1 /dev/md1					# Creates an Volume Group
+
+💡  lvcreate -n vg1lv0 -l +75%FREE vg1			# Set your LVM as you want
+💡  lvcreate -n vg1lv1 -l +100%FREE vg1 
+
+# Choose a password for your /dev/vg1/vg1lv0
+💡  cryptsetup luksFormat --hash=sha512 --key-size=512 --cipher=aes-xts-plain64 --verify-passphrase /dev/vg1/vg1lv0
+	  YES -> superPassw0rd
+    
+# Choose a password for your /dev/vg1/vg1lv1	
+💡  cryptsetup luksFormat --hash=sha512 --key-size=512 --cipher=aes-xts-plain64 --verify-passphrase /dev/vg1/vg1lv1
+	  YES -> superPassw0rd
+
+# Open your luks */vg1lv0
+💡 cryptsetup luksOpen /dev/vg1/vg1lv0 vg1lv0_crypt
+	superPassw0rd
+  
+# Open your luks */vg1lv1
+💡 cryptsetup luksOpen /dev/vg1/vg1lv1 vg1lv1_crypt
+	superPassw0rd
+
+mkfs.xfs /dev/mapper/vg1lv0_crypt
+mkfs.xfs /dev/mapper/vg1lv1_crypt
+
+cd /mnt/							# Set your 'mount' directory
+mkdir dados
+mkdir info
+
+💡  mount /dev/mapper/vg1lv0_crypt /mnt/dados/
+💡  mount /dev/mapper/vg1lv1_crypt /mnt/info/
+
+# Check if all partitions are OK
+lsblk								        
+
+cat /etc/mtab/							# Copy the last 2 lines (from the last 'mount')
+nano /etc/fstab							# Paste and add "nofail,"
+	
+reboot
+
+#After the machine reboots:
+
+💡  cryptsetup luksOpen /dev/vg1/vg1lv0 vg1lv0_crypt
+	  superPassw0rd
+
+💡  cryptsetup luksOpen /dev/vg1/vg1lv1 vg1lv1_crypt
+	  superPassw0rd
+
+mount -a
+
+# ! REMINDER ! : Every time machine reboots, do 'cryptsetup luksOpen' command from all your VG.
