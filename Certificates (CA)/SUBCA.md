@@ -73,4 +73,4 @@ cd ../..
 
     nano /etc/easy-rsa/pki/ca.crt
     
-#Now we can start creating our certificates :)
+#Now we can start creating our certificates :)  [Certificates (CA)](https://github.com/LS-Melo/AWS-PROJECT/blob/main/Certificates%20(CA)/Certificates.md)
