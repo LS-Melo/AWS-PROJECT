@@ -11,7 +11,7 @@
     Systemctl status openvpn@server_ra
     Systemctl status openvpn@server_ss
    
-💡  Check if your 'tunnel' opened:
+💡  Check if your 'tunnel' is opened:
 
     ip a
     
@@ -20,7 +20,7 @@
     Systemctl restart openvpn@server_ss
     Systemctl status openvpn@server_ss
     
-💡  Check if your 'tunnel' opened:
+💡  Check if your 'tunnel' is opened:
 
     ip a
 
