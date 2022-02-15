@@ -2,10 +2,10 @@
 
 1. [RedHaT Server](https://github.com/LS-Melo/AWS-PROJECT/tree/main/OpenVPN/RedHat%20(Main%20Server))
 
-2. Or if your Main Server is...
+     Or if your Main Server is...
 [Debian Server](https://github.com/LS-Melo/AWS-PROJECT/tree/main/OpenVPN/Debian%20(Main%20Server))
 
-3. [Remote Client](https://github.com/LS-Melo/AWS-PROJECT/tree/main/OpenVPN/Remote%20Client)
+2. [Remote Client](https://github.com/LS-Melo/AWS-PROJECT/tree/main/OpenVPN/Remote%20Client)
 
 #With your certificates and every 'tunnel' ready to start
 
