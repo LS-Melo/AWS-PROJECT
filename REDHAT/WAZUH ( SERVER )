@@ -1,0 +1,131 @@
+sudo su -
+yum update && yum upgrade
+
+# Install the necessary packages for the installation:
+
+💡  yum install curl unzip wget libcap
+
+# Import the GPG key:
+
+💡  rpm --import https://packages.wazuh.com/key/GPG-KEY-WAZUH
+
+# Add the repository:
+# Copy all (it is just 1 command)
+
+💡  cat > /etc/yum.repos.d/wazuh.repo << EOF
+[wazuh]
+gpgcheck=1
+gpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH
+enabled=1
+name=EL-\$releasever - Wazuh
+baseurl=https://packages.wazuh.com/4.x/yum/
+protect=1
+EOF
+
+# Installing the Wazuh manager:
+
+💡  yum install wazuh-manager
+💡  systemctl daemon-reload
+💡  systemctl enable wazuh-manager
+💡  systemctl start wazuh-manager
+💡  systemctl status wazuh-manager
+
+# Installing Elasticsearch
+💡  yum install opendistroforelasticsearch
+
+# Configuring Elasticsearch
+💡  curl -so /etc/elasticsearch/elasticsearch.yml https://packages.wazuh.com/resources/4.2/open-distro/elasticsearch/7.x/elasticsearch_all_in_one.yml
+
+# Elasticsearch users and roles
+💡  curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml https://packages.wazuh.com/resources/4.2/open-distro/elasticsearch/roles/roles.yml
+💡  curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml https://packages.wazuh.com/resources/4.2/open-distro/elasticsearch/roles/roles_mapping.yml
+💡  curl -so /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml https://packages.wazuh.com/resources/4.2/open-distro/elasticsearch/roles/internal_users.yml
+
+# Certificates creation
+
+# Remove the demo certificates:
+💡  rm /etc/elasticsearch/esnode-key.pem /etc/elasticsearch/esnode.pem /etc/elasticsearch/kirk-key.pem /etc/elasticsearch/kirk.pem /etc/elasticsearch/root-ca.pem -f
+
+# Generate and deploy the certificates:
+# Download the wazuh-cert-tool.sh:
+💡  curl -so ~/wazuh-cert-tool.sh https://packages.wazuh.com/resources/4.2/open-distro/tools/certificate-utility/wazuh-cert-tool.sh
+💡  curl -so ~/instances.yml https://packages.wazuh.com/resources/4.2/open-distro/tools/certificate-utility/instances_aio.yml
+
+# Run the wazuh-cert-tool.sh to create the certificates:
+💡  bash ~/wazuh-cert-tool.sh
+
+# Move the Elasticsearch certificates to their corresponding location:
+💡  mkdir /etc/elasticsearch/certs/
+💡  mv ~/certs/elasticsearch* /etc/elasticsearch/certs/
+💡  mv ~/certs/admin* /etc/elasticsearch/certs/
+💡  cp ~/certs/root-ca* /etc/elasticsearch/certs/
+
+# Add the following configuration to mitigate Apache Log4j2 Remote Code Execution (RCE) vulnerability - CVE-2021-44228 - ESA-2021-31. (!IMPORTANT!)
+💡  mkdir -p /etc/elasticsearch/jvm.options.d
+💡  echo '-Dlog4j2.formatMsgNoLookups=true' > /etc/elasticsearch/jvm.options.d/disabledlog4j.options
+💡  chmod 2750 /etc/elasticsearch/jvm.options.d/disabledlog4j.options
+💡  chown root:elasticsearch /etc/elasticsearch/jvm.options.d/disabledlog4j.options
+
+# Enable and start the Elasticsearch service:
+💡  systemctl daemon-reload
+💡  systemctl enable elasticsearch
+💡  systemctl start elasticsearch
+
+# Run the Elasticsearch securityadmin script to load the new certificates information and start the cluster:
+💡  export JAVA_HOME=/usr/share/elasticsearch/jdk/ && /usr/share/elasticsearch/plugins/opendistro_security/tools/securityadmin.sh -cd /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/ -nhnv -cacert /etc/elasticsearch/certs/root-ca.pem -cert /etc/elasticsearch/certs/admin.pem -key /etc/elasticsearch/certs/admin-key.pem
+
+# Run the following command to ensure that the installation is successful:
+💡  curl -XGET https://localhost:9200 -u admin:admin -k
+
+# Installing Filebeat
+💡  yum install filebeat
+💡  curl -so /etc/filebeat/filebeat.yml https://packages.wazuh.com/resources/4.2/open-distro/filebeat/7.x/filebeat_all_in_one.yml
+💡  curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/4.2/extensions/elasticsearch/7.x/wazuh-template.json
+💡  chmod go+r /etc/filebeat/wazuh-template.json
+
+# Download the Wazuh module for Filebeat:
+💡  curl -s https://packages.wazuh.com/4.x/filebeat/wazuh-filebeat-0.1.tar.gz | tar -xvz -C /usr/share/filebeat/module
+
+# Copy the Elasticsearch certificates into /etc/filebeat/certs:
+💡  mkdir /etc/filebeat/certs
+💡  cp ~/certs/root-ca.pem /etc/filebeat/certs/
+💡  mv ~/certs/filebeat* /etc/filebeat/certs/
+
+# Enable and start the Filebeat service:
+💡  systemctl daemon-reload
+💡  systemctl enable filebeat
+💡  systemctl start filebeat
+
+# To ensure that Filebeat is successfully installed, run the following command:
+💡  filebeat test output
+
+# Installing Kibana
+💡  yum install opendistroforelasticsearch-kibana
+💡  curl -so /etc/kibana/kibana.yml https://packages.wazuh.com/resources/4.2/open-distro/kibana/7.x/kibana_all_in_one.yml
+💡  mkdir /usr/share/kibana/data
+💡  chown -R kibana:kibana /usr/share/kibana/data
+
+# Install the Wazuh Kibana plugin. The installation of the plugin must be done from the Kibana home directory as follows:
+💡  cd /usr/share/kibana
+💡  sudo -u kibana /usr/share/kibana/bin/kibana-plugin install https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana-4.2.5_7.10.2-1.zip
+
+# Copy the Elasticsearch certificates into /etc/kibana/certs:
+💡  mkdir /etc/kibana/certs
+💡  cp ~/certs/root-ca.pem /etc/kibana/certs/
+💡  mv ~/certs/kibana* /etc/kibana/certs/
+💡  chown kibana:kibana /etc/kibana/certs/*
+
+# Link Kibana socket to privileged port 443:
+💡  setcap 'cap_net_bind_service=+ep' /usr/share/kibana/node/bin/node
+
+💡  systemctl daemon-reload
+💡  systemctl enable kibana
+💡  systemctl start kibana
+
+# Access the web interface:
+# URL: https://<SERVER_PUBLIC_IP:444>
+# user: admin
+# Password: admin
+
+# NOTE: Go to your server and add FW rule for Port: 444
+# -A PREROUTING -i eth0 -p tcp -m tcp --dport 444 -j DNAT --to-destination 172.31.96.12:443 (Wazuh Instance Priv.IP)
